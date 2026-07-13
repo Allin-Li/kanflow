@@ -1,27 +1,44 @@
 <template>
-  <div class="page">
-    <div class="topbar">
-      <div class="left">
-        <router-link class="ghost back" :to="{ name: 'boards' }">←</router-link>
-        <strong v-if="store.board">{{ store.board.title }}</strong>
+  <div class="h-screen flex flex-col">
+    <header
+      class="flex items-center justify-between px-4 py-2.5 bg-default/75 backdrop-blur border-b border-default"
+    >
+      <div class="flex items-center gap-2">
+        <UButton
+          :to="{ name: 'boards' }"
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-arrow-left"
+          aria-label="К списку досок"
+        />
+        <strong v-if="store.board" class="text-highlighted">
+          {{ store.board.title }}
+        </strong>
       </div>
-      <div class="right">
-        <span class="live-badge" :class="{ off: !store.live }">
+      <div class="flex items-center gap-1.5">
+        <UBadge :color="store.live ? 'success' : 'error'" variant="subtle" size="sm">
           {{ store.live ? "● live" : "offline" }}
-        </span>
+        </UBadge>
+        <ThemeToggle />
       </div>
-    </div>
+    </header>
 
-    <p v-if="store.loading" class="info">Загрузка доски…</p>
-    <p v-else-if="store.error" class="info err">Не удалось загрузить доску.</p>
+    <p v-if="store.loading" class="p-6 text-muted">Загрузка доски…</p>
+    <UAlert
+      v-else-if="store.error"
+      class="m-6 w-auto"
+      color="error"
+      variant="subtle"
+      description="Не удалось загрузить доску."
+    />
 
-    <div v-else-if="store.board" class="board">
+    <div v-else-if="store.board" class="flex-1 overflow-x-auto p-4 flex items-start gap-3">
       <draggable
         :list="store.board.columns"
         item-key="id"
         group="columns"
         handle=".col-header"
-        class="columns"
+        class="flex gap-3 items-start"
         :animation="150"
         @change="onColumnChange"
       >
@@ -30,9 +47,17 @@
         </template>
       </draggable>
 
-      <form class="add-col" @submit.prevent="addColumn">
-        <input v-model="newColumn" placeholder="+ Добавить колонку" />
-        <button v-if="newColumn" type="submit">Добавить</button>
+      <form
+        class="flex gap-1.5 shrink-0 min-w-60 p-2 rounded-lg bg-elevated/50"
+        @submit.prevent="addColumn"
+      >
+        <UInput
+          v-model="newColumn"
+          placeholder="+ Добавить колонку"
+          variant="soft"
+          class="flex-1"
+        />
+        <UButton v-if="newColumn" type="submit">Добавить</UButton>
       </form>
     </div>
   </div>
@@ -42,6 +67,7 @@
 import { onBeforeUnmount, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import BoardColumn from "@/components/BoardColumn.vue";
+import ThemeToggle from "@/components/ThemeToggle.vue";
 import { useBoardStore } from "@/stores/board";
 
 const props = defineProps({ id: { type: [String, Number], required: true } });
@@ -51,7 +77,7 @@ const newColumn = ref("");
 watch(
   () => props.id,
   (id) => store.load(id),
-  { immediate: true }
+  { immediate: true },
 );
 
 onBeforeUnmount(() => store.disconnectWs());
@@ -66,49 +92,3 @@ function onColumnChange(evt) {
   if (evt.moved) store.onColumnMoved(evt.moved.newIndex);
 }
 </script>
-
-<style scoped>
-.page {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-.left,
-.right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.back {
-  text-decoration: none;
-  font-size: 18px;
-}
-.board {
-  flex: 1;
-  overflow-x: auto;
-  padding: 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-.columns {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-.add-col {
-  display: flex;
-  gap: 6px;
-  flex: 0 0 auto;
-  min-width: 240px;
-  background: rgba(9, 30, 66, 0.04);
-  padding: 8px;
-  border-radius: 8px;
-}
-.info {
-  padding: 24px;
-}
-.err {
-  color: #bf2600;
-}
-</style>

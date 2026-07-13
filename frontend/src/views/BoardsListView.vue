@@ -1,29 +1,54 @@
 <template>
-  <div>
-    <div class="topbar">
-      <strong>Мои доски</strong>
-      <div>
-        <span v-if="auth.user" class="muted">{{ auth.user.username }}</span>
-        <button class="ghost" @click="logout">Выйти</button>
+  <div class="min-h-screen">
+    <header
+      class="sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 bg-default/75 backdrop-blur border-b border-default"
+    >
+      <strong class="text-highlighted">Мои доски</strong>
+      <div class="flex items-center gap-1.5">
+        <span v-if="auth.user" class="text-sm text-muted mr-1">
+          {{ auth.user.username }}
+        </span>
+        <ThemeToggle />
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-log-out"
+          aria-label="Выйти"
+          @click="logout"
+        />
       </div>
-    </div>
+    </header>
 
-    <div class="wrap">
-      <form class="new" @submit.prevent="create">
-        <input v-model="title" placeholder="Название новой доски" required />
-        <button type="submit">Создать</button>
+    <UContainer class="max-w-3xl py-6">
+      <form class="flex gap-2 mb-6" @submit.prevent="create">
+        <UInput
+          v-model="title"
+          placeholder="Название новой доски"
+          icon="i-lucide-kanban"
+          class="flex-1"
+          required
+        />
+        <UButton type="submit" icon="i-lucide-plus">Создать</UButton>
       </form>
 
-      <p v-if="loading">Загрузка…</p>
-      <ul v-else class="grid">
+      <div v-if="loading" class="flex justify-center py-10">
+        <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted" />
+      </div>
+
+      <ul v-else class="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-3">
         <li v-for="b in boards" :key="b.id">
-          <router-link :to="{ name: 'board', params: { id: b.id } }">
+          <router-link
+            :to="{ name: 'board', params: { id: b.id } }"
+            class="block px-4 py-6 rounded-lg bg-default ring ring-default shadow-sm font-semibold text-default hover:ring-primary hover:shadow transition"
+          >
             {{ b.title }}
           </router-link>
         </li>
-        <li v-if="!boards.length" class="muted">Пока нет досок — создайте первую.</li>
+        <li v-if="!boards.length" class="text-muted col-span-full">
+          Пока нет досок — создайте первую.
+        </li>
       </ul>
-    </div>
+    </UContainer>
   </div>
 </template>
 
@@ -32,6 +57,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import http from "@/api/http";
 import { useAuthStore } from "@/stores/auth";
+import ThemeToggle from "@/components/ThemeToggle.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -59,36 +85,3 @@ function logout() {
 
 onMounted(fetchBoards);
 </script>
-
-<style scoped>
-.wrap {
-  max-width: 720px;
-  margin: 24px auto;
-  padding: 0 16px;
-}
-.new {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-.grid {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-}
-.grid li a {
-  display: block;
-  padding: 24px 16px;
-  background: var(--surface);
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(9, 30, 66, 0.12);
-}
-.muted {
-  color: var(--muted);
-}
-</style>

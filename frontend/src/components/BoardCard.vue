@@ -1,29 +1,32 @@
 <template>
-  <div class="card" @click="editing = true">
+  <div
+    class="rounded-md bg-default ring ring-default shadow-sm px-2.5 py-2 text-sm cursor-pointer hover:ring-primary/50 transition"
+    @click="editing = true"
+  >
     <template v-if="!editing">
-      <div class="title">{{ card.title }}</div>
-      <div v-if="labels.length" class="labels">
+      <div class="text-default">{{ card.title }}</div>
+      <div v-if="labels.length" class="flex gap-1 mt-1.5">
         <span
           v-for="l in labels"
           :key="l"
-          class="label"
+          class="w-8 h-1.5 rounded-full"
           :style="{ background: l }"
         />
       </div>
-      <div v-if="card.description" class="desc-mark">≡</div>
+      <UIcon v-if="card.description" name="i-lucide-text" class="size-3.5 text-dimmed mt-1" />
     </template>
 
-    <form v-else class="edit" @submit.prevent="save" @click.stop>
-      <input v-model="draftTitle" autofocus />
-      <textarea v-model="draftDesc" placeholder="Описание…" rows="3" />
-      <div class="row">
-        <button type="submit">Сохранить</button>
-        <button type="button" class="ghost" @click="editing = false">
+    <form v-else class="flex flex-col gap-1.5" @submit.prevent="save" @click.stop>
+      <UInput v-model="draftTitle" size="sm" autofocus />
+      <UTextarea v-model="draftDesc" placeholder="Описание…" :rows="3" size="sm" />
+      <div class="flex gap-1.5">
+        <UButton type="submit" size="xs">Сохранить</UButton>
+        <UButton type="button" color="neutral" variant="ghost" size="xs" @click="editing = false">
           Отмена
-        </button>
-        <button type="button" class="ghost danger" @click="remove">
+        </UButton>
+        <UButton type="button" color="error" variant="ghost" size="xs" @click="remove">
           Удалить
-        </button>
+        </UButton>
       </div>
     </form>
   </div>
@@ -55,41 +58,3 @@ async function remove() {
   await store.deleteCard(props.card);
 }
 </script>
-
-<style scoped>
-.card {
-  background: var(--surface);
-  border-radius: 6px;
-  padding: 8px 10px;
-  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.2);
-  cursor: pointer;
-  font-size: 14px;
-}
-.labels {
-  display: flex;
-  gap: 4px;
-  margin-top: 6px;
-}
-.label {
-  width: 32px;
-  height: 6px;
-  border-radius: 3px;
-}
-.desc-mark {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 4px;
-}
-.edit {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.row {
-  display: flex;
-  gap: 6px;
-}
-.danger {
-  color: #bf2600;
-}
-</style>

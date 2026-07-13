@@ -1,29 +1,40 @@
 <template>
-  <div class="auth">
-    <form class="card" @submit.prevent="submit">
-      <h1>{{ isRegister ? "Регистрация" : "Вход" }}</h1>
+  <div class="min-h-screen grid place-items-center p-4">
+    <UCard class="w-full max-w-sm backdrop-blur">
+      <form class="flex flex-col gap-4" @submit.prevent="submit">
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-semibold text-highlighted">
+            {{ isRegister ? "Регистрация" : "Вход" }}
+          </h1>
+          <ThemeToggle />
+        </div>
 
-      <label>Имя пользователя<input v-model="username" required /></label>
-      <label v-if="isRegister"
-        >Email<input v-model="email" type="email"
-      /></label>
-      <label
-        >Пароль<input v-model="password" type="password" required minlength="8"
-      /></label>
+        <UFormField label="Имя пользователя" required>
+          <UInput v-model="username" class="w-full" required autofocus />
+        </UFormField>
 
-      <p v-if="error" class="err">{{ error }}</p>
+        <UFormField v-if="isRegister" label="Email">
+          <UInput v-model="email" type="email" class="w-full" />
+        </UFormField>
 
-      <button type="submit" :disabled="busy">
-        {{ isRegister ? "Создать аккаунт" : "Войти" }}
-      </button>
+        <UFormField label="Пароль" required>
+          <UInput v-model="password" type="password" class="w-full" required minlength="8" />
+        </UFormField>
 
-      <p class="switch">
-        {{ isRegister ? "Уже есть аккаунт?" : "Нет аккаунта?" }}
-        <a href="#" @click.prevent="isRegister = !isRegister">
-          {{ isRegister ? "Войти" : "Зарегистрироваться" }}
-        </a>
-      </p>
-    </form>
+        <UAlert v-if="error" color="error" variant="subtle" :description="error" />
+
+        <UButton type="submit" block :loading="busy">
+          {{ isRegister ? "Создать аккаунт" : "Войти" }}
+        </UButton>
+
+        <p class="text-sm text-center text-muted">
+          {{ isRegister ? "Уже есть аккаунт?" : "Нет аккаунта?" }}
+          <UButton variant="link" color="primary" class="p-0" @click="isRegister = !isRegister">
+            {{ isRegister ? "Войти" : "Зарегистрироваться" }}
+          </UButton>
+        </p>
+      </form>
+    </UCard>
   </div>
 </template>
 
@@ -31,6 +42,7 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import ThemeToggle from "@/components/ThemeToggle.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -63,42 +75,3 @@ async function submit() {
   }
 }
 </script>
-
-<style scoped>
-.auth {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-}
-.card {
-  background: var(--surface);
-  padding: 28px;
-  border-radius: 8px;
-  width: 340px;
-  box-shadow: 0 1px 6px rgba(9, 30, 66, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-h1 {
-  margin: 0 0 6px;
-  font-size: 22px;
-}
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--muted);
-}
-.err {
-  color: #bf2600;
-  margin: 0;
-  font-size: 13px;
-}
-.switch {
-  font-size: 13px;
-  text-align: center;
-  margin: 4px 0 0;
-}
-</style>

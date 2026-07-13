@@ -10,8 +10,8 @@ drag-and-drop, живые обновления через WebSocket.
 | Backend | Django 5, Django REST Framework, SimpleJWT, Django Channels (ASGI/Daphne) |
 | БД | PostgreSQL (JSONB для метаданных карточек) |
 | Realtime | Django Channels, channel layer in-memory (по умолчанию) / Redis (опционально) |
-| Frontend | Vue 3, Pinia, vue-router, vuedraggable, axios |
-| Инфра | Docker Compose |
+| Frontend | Vue 3, Nuxt UI (+ Tailwind CSS), Pinia, vue-router, vuedraggable, axios |
+| Инфра | Docker Compose, Vite+ (`vp`) как тулчейн фронтенда |
 
 ## Архитектура коротко
 
@@ -52,6 +52,16 @@ docker compose up --build
 
 ```bash
 docker compose exec backend python manage.py createsuperuser
+```
+
+Фронтенд можно гонять и без Docker — тулчейн [Vite+](https://viteplus.dev)
+(`curl -fsSL https://vite.plus | bash`), дальше в `frontend/`:
+
+```bash
+vp install   # зависимости
+vp dev       # dev-сервер
+vp check     # формат + линт (--fix чинит сам)
+vp build     # прод-сборка
 ```
 
 ## Основные эндпоинты

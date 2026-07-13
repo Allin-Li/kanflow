@@ -1,22 +1,34 @@
 <template>
-  <div class="column">
-    <header class="col-header">
-      <input
+  <div
+    class="w-68 shrink-0 flex flex-col max-h-[calc(100vh-7.5rem)] rounded-lg bg-elevated/80 backdrop-blur ring ring-default"
+  >
+    <header class="col-header flex items-center justify-between gap-2 px-2.5 py-2 cursor-grab">
+      <UInput
         v-if="renaming"
         v-model="draftTitle"
+        size="sm"
+        autofocus
         @blur="saveTitle"
         @keyup.enter="saveTitle"
-        autofocus
       />
-      <h3 v-else @dblclick="renaming = true">{{ column.title }}</h3>
-      <button class="ghost" title="Удалить колонку" @click="remove">×</button>
+      <h3 v-else class="m-0 text-sm font-semibold text-highlighted" @dblclick="renaming = true">
+        {{ column.title }}
+      </h3>
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        icon="i-lucide-x"
+        title="Удалить колонку"
+        @click="remove"
+      />
     </header>
 
     <draggable
       :list="column.cards"
       item-key="id"
       group="cards"
-      class="cards"
+      class="flex flex-col gap-2 px-2 py-1 overflow-y-auto min-h-2 flex-1"
       :animation="150"
       ghost-class="drag-ghost"
       chosen-class="drag-chosen"
@@ -27,9 +39,15 @@
       </template>
     </draggable>
 
-    <form class="add" @submit.prevent="addCard">
-      <input v-model="newCard" placeholder="+ Добавить карточку" />
-      <button v-if="newCard" type="submit">Добавить</button>
+    <form class="flex gap-1.5 p-2" @submit.prevent="addCard">
+      <UInput
+        v-model="newCard"
+        placeholder="+ Добавить карточку"
+        variant="soft"
+        size="sm"
+        class="flex-1"
+      />
+      <UButton v-if="newCard" type="submit" size="sm">Добавить</UButton>
     </form>
   </div>
 </template>
@@ -73,38 +91,3 @@ function onChange(evt) {
   if (change) store.onCardMoved(props.column, change.newIndex);
 }
 </script>
-
-<style scoped>
-.column {
-  background: var(--col-bg);
-  border-radius: 8px;
-  width: 272px;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 120px);
-}
-.col-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  cursor: grab;
-}
-.col-header h3 {
-  margin: 0;
-  font-size: 15px;
-}
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 4px 8px;
-  overflow-y: auto;
-  min-height: 8px;
-  flex: 1;
-}
-.add {
-  padding: 8px;
-}
-</style>

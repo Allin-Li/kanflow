@@ -48,7 +48,8 @@ services:
 
   frontend:
     build: ./frontend
-    command: npm run dev -- --host 0.0.0.0
+    # host 0.0.0.0 задан в vite.config.js (server.host)
+    command: npm run dev
     volumes:
       - ./frontend:/app
       - /app/node_modules

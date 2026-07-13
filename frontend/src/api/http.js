@@ -5,8 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 // Уникальный id вкладки. Уходит в каждый мутирующий запрос заголовком
 // X-Client-Id; сервер кладёт его в WS-broadcast (origin). По нему клиент
 // отличает собственное эхо и не применяет optimistic-апдейт повторно.
-export const CLIENT_ID =
-  (globalThis.crypto?.randomUUID?.() ?? String(Math.random())).slice(0, 12);
+export const CLIENT_ID = (globalThis.crypto?.randomUUID?.() ?? String(Math.random())).slice(0, 12);
 
 export const tokens = {
   get access() {
@@ -43,8 +42,7 @@ http.interceptors.response.use(
       config._retry = true;
       try {
         refreshing =
-          refreshing ||
-          axios.post(`${API_BASE}/api/auth/refresh/`, { refresh: tokens.refresh });
+          refreshing || axios.post(`${API_BASE}/api/auth/refresh/`, { refresh: tokens.refresh });
         const { data } = await refreshing;
         refreshing = null;
         tokens.set({ access: data.access, refresh: data.refresh });
@@ -57,7 +55,7 @@ http.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default http;

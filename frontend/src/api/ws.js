@@ -24,8 +24,7 @@ export class BoardSocket {
       this.retry = 0;
       // keep-alive пинги
       this.pingTimer = setInterval(() => {
-        if (this.ws?.readyState === WebSocket.OPEN)
-          this.ws.send(JSON.stringify({ type: "ping" }));
+        if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify({ type: "ping" }));
       }, 25000);
     };
 

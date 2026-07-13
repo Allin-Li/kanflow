@@ -10,6 +10,9 @@ staticfiles/
 # Node
 node_modules/
 dist/
+# генерируются vite-плагином @nuxt/ui при каждом запуске
+frontend/auto-imports.d.ts
+frontend/components.d.ts
 
 # Env / secrets
 .env
