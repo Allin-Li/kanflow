@@ -13,7 +13,7 @@ app.use(ui);
 // Восстанавливаем сессию до монтирования, чтобы гвард роутера
 // сразу знал актуального пользователя.
 const auth = useAuthStore();
-auth.init().finally(() => {
+void auth.init().finally(() => {
   app.use(router);
   app.mount("#app");
 });

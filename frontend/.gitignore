@@ -1,0 +1,8 @@
+# Локальный ignore для тулинга фронтенда (vp check/oxlint читают .gitignore,
+# чтобы не форматировать/линтить билд-вывод и сгенерированные файлы).
+node_modules/
+dist/
+
+# Генерируются vite-плагином @nuxt/ui при каждом запуске
+auto-imports.d.ts
+components.d.ts

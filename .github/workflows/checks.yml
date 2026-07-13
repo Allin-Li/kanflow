@@ -35,9 +35,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Строгая проверка типов, включая шаблоны .vue. vue-tsc ставим
-      # транзитивно (--no-save), чтобы не менять package-lock деплой-сборки.
+      # Нативный тулчейн: формат + линт (+ type-aware правила по .ts).
+      # .gitignore фронтенда исключает node_modules/dist/сгенерированные d.ts.
+      - name: Lint & format (vp check)
+        run: npm run check
+
+      # vp check НЕ проверяет типы внутри шаблонов .vue — это делает vue-tsc.
+      # Ставим его транзитивно (--no-save), чтобы не менять package-lock.
       - name: Type-check (vue-tsc)
         run: |
           npm i --no-save --legacy-peer-deps vue-tsc@2.1.10 typescript@5.6.3
-          npx vue-tsc --noEmit -p tsconfig.json
+          ./node_modules/.bin/vue-tsc --noEmit -p tsconfig.json
