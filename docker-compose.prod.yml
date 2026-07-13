@@ -1,0 +1,46 @@
+name: kanflow
+
+# Прод-стек на сервере. Фронтенд НЕ здесь: он раздаётся статикой хостовым
+# nginx из /var/www/kanflow (CI кладёт туда собранный dist). Здесь только БД
+# и backend; backend тянется готовым образом из GHCR (собран в CI).
+#
+# Хостовый nginx (kanflow.conf) проксирует /api /ws /admin на 127.0.0.1:8100.
+# Рядом нужен файл .env (см. .env.production.example).
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: kanflow-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # postgres:18 монтирует том на /var/lib/postgresql (данные — в подпапке
+      # с версией). Имя тома kanflow_pgdata сохраняем, чтобы не потерять данные.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ghcr.io/allin-li/kanflow-backend:latest
+    container_name: kanflow-backend
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+    env_file: .env
+    ports:
+      # Только localhost — наружу отдаёт хостовый nginx (kanflow.conf).
+      - "127.0.0.1:8100:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
