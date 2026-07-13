@@ -5,7 +5,12 @@ Django settings for the Kanban project (ASGI + Channels + DRF/JWT).
 from datetime import timedelta
 from pathlib import Path
 
+import django_stubs_ext
 import environ
+
+# Делает дженерики Django (QuerySet[Model], Manager[Model], ForeignKey[...])
+# доступными в аннотациях в рантайме — используем их по всему коду.
+django_stubs_ext.monkeypatch()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

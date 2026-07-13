@@ -17,10 +17,13 @@ dependencies = [
     # Раздача статики (нужна только админке) из самого ASGI-процесса:
     # daphne, в отличие от runserver, статику не отдаёт ни в dev, ни в проде.
     "whitenoise>=6.7,<7.0",
+    "django-stubs-ext>=5.1",
 ]
 
 [dependency-groups]
 dev = [
+    "django-stubs>=5.1",
+    "mypy>=1.11",
     "ruff>=0.9",
 ]
 
@@ -46,3 +49,16 @@ select = [
     "DJ",  # flake8-django: Django-специфичные проверки
     "SIM", # simplify: избыточные конструкции
 ]
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main"]
+# Сторонние библиотеки без type stubs (DRF, channels, simplejwt, environ) —
+# их отсутствие не считаем ошибкой, чтобы мягкий режим не тонул в шуме.
+ignore_missing_imports = true
+check_untyped_defs = true
+# Миграции генерирует Django — их не проверяем.
+exclude = ['/migrations/']
+
+[tool.django-stubs]
+django_settings_module = "config.settings"

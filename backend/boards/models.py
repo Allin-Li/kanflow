@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.db import models
+
+if TYPE_CHECKING:
+    from accounts.models import User
 
 
 class Board(models.Model):
@@ -11,7 +18,7 @@ class Board(models.Model):
         on_delete=models.CASCADE,
         related_name="owned_boards",
     )
-    members = models.ManyToManyField(
+    members: models.ManyToManyField[User, BoardMembership] = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through="BoardMembership",
         related_name="boards",
@@ -22,7 +29,7 @@ class Board(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -44,7 +51,7 @@ class BoardMembership(models.Model):
     class Meta:
         unique_together = ("board", "user")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user} @ {self.board} ({self.role})"
 
 
@@ -59,7 +66,7 @@ class Column(models.Model):
     class Meta:
         ordering = ["position", "id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.title} ({self.board_id})"
 
 
@@ -83,5 +90,5 @@ class Card(models.Model):
     class Meta:
         ordering = ["position", "id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title

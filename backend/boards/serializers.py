@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from rest_framework import serializers
 
 from accounts.serializers import UserSerializer
@@ -21,7 +25,7 @@ class CardSerializer(serializers.ModelSerializer):
         # position и column меняются только через move-эндпоинт
         read_only_fields = ("position", "column", "created_at", "updated_at")
 
-    def validate_meta(self, value):
+    def validate_meta(self, value: Any) -> dict[str, Any]:
         if not isinstance(value, dict):
             raise serializers.ValidationError("meta должен быть объектом (dict).")
         return value

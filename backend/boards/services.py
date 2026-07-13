@@ -3,24 +3,32 @@
 между соседями и ребаланс колонки. Вьюхи держим тонкими.
 """
 
-from django.db import transaction
+from __future__ import annotations
 
-from .models import Card, Column
+from typing import Any
+
+from django.db import transaction
+from django.db.models import Model, QuerySet
+
+from .models import Board, Card, Column
 from .positioning import STEP, needs_rebalance, position_between
 
 
-def _last_position(queryset):
+def _last_position(queryset: QuerySet[Any]) -> float | None:
     last = queryset.order_by("-position").first()
     return last.position if last else None
 
 
-def append_position(queryset) -> float:
+def append_position(queryset: QuerySet[Any]) -> float:
     """Позиция для нового элемента в конце списка."""
     last = _last_position(queryset)
     return STEP if last is None else last + STEP
 
 
-def _resolve_neighbors(siblings, after_id):
+def _resolve_neighbors[M: Model](
+    siblings: list[M],
+    after_id: int | str | None,
+) -> tuple[M | None, M | None]:
     """
     Из упорядоченного списка соседей и id элемента-предшественника
     возвращает (prev, next). after_id=None => вставка в начало.
@@ -37,7 +45,7 @@ def _resolve_neighbors(siblings, after_id):
 
 
 @transaction.atomic
-def rebalance_cards(column: Column):
+def rebalance_cards(column: Column) -> None:
     """Раскидать позиции карточек колонки заново с равным шагом STEP."""
     cards = list(column.cards.order_by("position", "id").select_for_update())
     for i, card in enumerate(cards, start=1):
@@ -46,7 +54,7 @@ def rebalance_cards(column: Column):
 
 
 @transaction.atomic
-def rebalance_columns(board):
+def rebalance_columns(board: Board) -> None:
     columns = list(board.columns.order_by("position", "id").select_for_update())
     for i, col in enumerate(columns, start=1):
         col.position = i * STEP
@@ -54,7 +62,7 @@ def rebalance_columns(board):
 
 
 @transaction.atomic
-def move_card(card: Card, target_column: Column, after_id):
+def move_card(card: Card, target_column: Column, after_id: int | str | None) -> Card:
     """Переместить карточку в target_column, поставив её после after_id."""
     siblings = list(target_column.cards.exclude(pk=card.pk).order_by("position", "id"))
     prev, nxt = _resolve_neighbors(siblings, after_id)
@@ -72,7 +80,7 @@ def move_card(card: Card, target_column: Column, after_id):
 
 
 @transaction.atomic
-def move_column(column: Column, after_id):
+def move_column(column: Column, after_id: int | str | None) -> Column:
     siblings = list(column.board.columns.exclude(pk=column.pk).order_by("position", "id"))
     prev, nxt = _resolve_neighbors(siblings, after_id)
     prev_pos = prev.position if prev else None
