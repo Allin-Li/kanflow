@@ -23,9 +23,8 @@ class BoardViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsBoardMember]
 
     def get_queryset(self):
-        return (
-            user_boards(self.request.user)
-            .prefetch_related("columns__cards", "memberships__user")
+        return user_boards(self.request.user).prefetch_related(
+            "columns__cards", "memberships__user"
         )
 
     def get_serializer_class(self):
@@ -84,9 +83,9 @@ class ColumnViewSet(BoardScopedViewSet):
     serializer_class = ColumnSerializer
 
     def get_queryset(self):
-        return Column.objects.filter(
-            board__in=user_boards(self.request.user)
-        ).select_related("board")
+        return Column.objects.filter(board__in=user_boards(self.request.user)).select_related(
+            "board"
+        )
 
     def board_of(self, obj):
         return obj.board
@@ -94,16 +93,12 @@ class ColumnViewSet(BoardScopedViewSet):
     def perform_create(self, serializer):
         board = get_object_or_404(Board, pk=self.request.data.get("board"))
         self._check_board(board)
-        column = serializer.save(
-            board=board, position=append_position(board.columns.all())
-        )
+        column = serializer.save(board=board, position=append_position(board.columns.all()))
         broadcast(board.id, "column.created", ColumnSerializer(column).data, self._origin())
 
     def perform_update(self, serializer):
         column = serializer.save()
-        broadcast(
-            column.board_id, "column.updated", ColumnSerializer(column).data, self._origin()
-        )
+        broadcast(column.board_id, "column.updated", ColumnSerializer(column).data, self._origin())
 
     def perform_destroy(self, instance):
         board_id = instance.board_id
@@ -125,9 +120,9 @@ class CardViewSet(BoardScopedViewSet):
     serializer_class = CardSerializer
 
     def get_queryset(self):
-        return Card.objects.filter(
-            column__board__in=user_boards(self.request.user)
-        ).select_related("column__board")
+        return Card.objects.filter(column__board__in=user_boards(self.request.user)).select_related(
+            "column__board"
+        )
 
     def board_of(self, obj):
         return obj.column.board
@@ -135,16 +130,12 @@ class CardViewSet(BoardScopedViewSet):
     def perform_create(self, serializer):
         column = get_object_or_404(Column, pk=self.request.data.get("column"))
         self._check_board(column.board)
-        card = serializer.save(
-            column=column, position=append_position(column.cards.all())
-        )
+        card = serializer.save(column=column, position=append_position(column.cards.all()))
         broadcast(column.board_id, "card.created", CardSerializer(card).data, self._origin())
 
     def perform_update(self, serializer):
         card = serializer.save()
-        broadcast(
-            card.column.board_id, "card.updated", CardSerializer(card).data, self._origin()
-        )
+        broadcast(card.column.board_id, "card.updated", CardSerializer(card).data, self._origin())
 
     def perform_destroy(self, instance):
         board_id = instance.column.board_id

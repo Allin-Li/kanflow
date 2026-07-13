@@ -2,6 +2,7 @@
 Бизнес-логика порядка элементов: добавление в конец, перемещение
 между соседями и ребаланс колонки. Вьюхи держим тонкими.
 """
+
 from django.db import transaction
 
 from .models import Card, Column
@@ -55,9 +56,7 @@ def rebalance_columns(board):
 @transaction.atomic
 def move_card(card: Card, target_column: Column, after_id):
     """Переместить карточку в target_column, поставив её после after_id."""
-    siblings = list(
-        target_column.cards.exclude(pk=card.pk).order_by("position", "id")
-    )
+    siblings = list(target_column.cards.exclude(pk=card.pk).order_by("position", "id"))
     prev, nxt = _resolve_neighbors(siblings, after_id)
     prev_pos = prev.position if prev else None
     next_pos = nxt.position if nxt else None
@@ -74,9 +73,7 @@ def move_card(card: Card, target_column: Column, after_id):
 
 @transaction.atomic
 def move_column(column: Column, after_id):
-    siblings = list(
-        column.board.columns.exclude(pk=column.pk).order_by("position", "id")
-    )
+    siblings = list(column.board.columns.exclude(pk=column.pk).order_by("position", "id"))
     prev, nxt = _resolve_neighbors(siblings, after_id)
     prev_pos = prev.position if prev else None
     next_pos = nxt.position if nxt else None

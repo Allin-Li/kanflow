@@ -1,6 +1,7 @@
 """
 Django settings for the Kanban project (ASGI + Channels + DRF/JWT).
 """
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -91,9 +93,7 @@ if REDIS_URL:
         }
     }
 else:
-    CHANNEL_LAYERS = {
-        "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
-    }
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # ── Auth ─────────────────────────────────────────────────
 AUTH_USER_MODEL = "accounts.User"
@@ -109,12 +109,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
-    "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
 
 SIMPLE_JWT = {
@@ -138,4 +134,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+# Сюда collectstatic собирает файлы (нужны только админке), оттуда их
+# раздаёт whitenoise. В DEBUG whitenoise берёт файлы напрямую через
+# finders, так что в dev collectstatic запускать не нужно.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

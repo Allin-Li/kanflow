@@ -6,6 +6,7 @@ JWT-аутентификация для WebSocket-соединений.
     ws://host/ws/boards/<id>/?token=<access>
 Мидлвар валидирует токен и кладёт пользователя в scope["user"].
 """
+
 from urllib.parse import parse_qs
 
 from channels.db import database_sync_to_async

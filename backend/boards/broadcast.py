@@ -5,6 +5,7 @@ REST-вьюха после успешной записи в БД зовёт broa
 доставляет событие в группу board_<id>. Поле `origin` — id вкладки-инициатора:
 клиент по нему игнорирует собственное эхо и не дублирует optimistic-апдейт.
 """
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 

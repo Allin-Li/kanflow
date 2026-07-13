@@ -7,6 +7,7 @@ board_<id>. Дальше он только ретранслирует событ
 шлют через broadcast(). Писать данные через сокет клиент не может —
 источник истины остаётся за REST.
 """
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -47,8 +48,8 @@ class BoardConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def _can_access(self):
-        from .permissions import can_access_board
         from .models import Board
+        from .permissions import can_access_board
 
         try:
             board = Board.objects.get(pk=self.board_id)
