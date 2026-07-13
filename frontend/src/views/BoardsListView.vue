@@ -52,28 +52,29 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import http from "@/api/http";
 import { useAuthStore } from "@/stores/auth";
 import ThemeToggle from "@/components/ThemeToggle.vue";
+import type { BoardSummary } from "@/types";
 
 const auth = useAuthStore();
 const router = useRouter();
-const boards = ref([]);
+const boards = ref<BoardSummary[]>([]);
 const title = ref("");
 const loading = ref(true);
 
 async function fetchBoards() {
   loading.value = true;
-  const { data } = await http.get("/boards/");
+  const { data } = await http.get<BoardSummary[]>("/boards/");
   boards.value = data;
   loading.value = false;
 }
 
 async function create() {
-  const { data } = await http.post("/boards/", { title: title.value });
+  const { data } = await http.post<BoardSummary>("/boards/", { title: title.value });
   title.value = "";
   router.push({ name: "board", params: { id: data.id } });
 }

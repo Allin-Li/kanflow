@@ -52,13 +52,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import draggable from "vuedraggable";
 import BoardCard from "./BoardCard.vue";
 import { useBoardStore } from "@/stores/board";
+import type { Column } from "@/types";
 
-const props = defineProps({ column: { type: Object, required: true } });
+// Событие vuedraggable @change (у пакета нет собственных типов).
+interface DraggableChange {
+  added?: { newIndex: number };
+  moved?: { newIndex: number; oldIndex: number };
+  removed?: { oldIndex: number };
+}
+
+const props = defineProps<{ column: Column }>();
 const store = useBoardStore();
 
 const newCard = ref("");
@@ -86,7 +94,7 @@ async function remove() {
 
 // vuedraggable мутирует column.cards через :list. Реагируем на появление
 // (added — перенос из другой колонки) и перестановку внутри (moved).
-function onChange(evt) {
+function onChange(evt: DraggableChange) {
   const change = evt.added || evt.moved;
   if (change) store.onCardMoved(props.column, change.newIndex);
 }

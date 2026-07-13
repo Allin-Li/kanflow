@@ -38,9 +38,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import type { AxiosError } from "axios";
 import { useAuthStore } from "@/stores/auth";
 import ThemeToggle from "@/components/ThemeToggle.vue";
 
@@ -64,12 +65,17 @@ async function submit() {
     } else {
       await auth.login(username.value, password.value);
     }
-    router.push(route.query.next || { name: "boards" });
+    const next = route.query.next;
+    router.push(typeof next === "string" ? next : { name: "boards" });
   } catch (e) {
-    error.value =
-      e.response?.data?.detail ||
-      Object.values(e.response?.data ?? {})?.[0]?.[0] ||
-      "Не удалось выполнить запрос";
+    // Достаём человекочитаемую ошибку из ответа DRF: либо detail,
+    // либо первое сообщение первого невалидного поля.
+    const data = (e as AxiosError<Record<string, unknown>>).response?.data;
+    const detail = typeof data?.detail === "string" ? data.detail : undefined;
+    const firstFieldError = data
+      ? (Object.values(data).find((v) => Array.isArray(v)) as string[] | undefined)
+      : undefined;
+    error.value = detail || firstFieldError?.[0] || "Не удалось выполнить запрос";
   } finally {
     busy.value = false;
   }

@@ -32,11 +32,12 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from "vue";
 import { useBoardStore } from "@/stores/board";
+import type { Card } from "@/types";
 
-const props = defineProps({ card: { type: Object, required: true } });
+const props = defineProps<{ card: Card }>();
 const store = useBoardStore();
 
 const editing = ref(false);
@@ -44,7 +45,7 @@ const draftTitle = ref(props.card.title);
 const draftDesc = ref(props.card.description);
 
 // meta (JSONB) — гибкие поля. Пример: цветные лейблы.
-const labels = computed(() => props.card.meta?.labels ?? []);
+const labels = computed<string[]>(() => props.card.meta?.labels ?? []);
 
 async function save() {
   await store.updateCard(props.card, {

@@ -1,7 +1,13 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 import { tokens } from "@/api/http";
 
-const routes = [
+declare module "vue-router" {
+  interface RouteMeta {
+    public?: boolean;
+  }
+}
+
+const routes: RouteRecordRaw[] = [
   {
     path: "/login",
     name: "login",

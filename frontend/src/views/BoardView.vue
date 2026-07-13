@@ -63,14 +63,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import BoardColumn from "@/components/BoardColumn.vue";
 import ThemeToggle from "@/components/ThemeToggle.vue";
 import { useBoardStore } from "@/stores/board";
 
-const props = defineProps({ id: { type: [String, Number], required: true } });
+// Событие vuedraggable @change (у пакета нет собственных типов).
+interface DraggableChange {
+  moved?: { newIndex: number; oldIndex: number };
+  added?: { newIndex: number };
+  removed?: { oldIndex: number };
+}
+
+const props = defineProps<{ id: string | number }>();
 const store = useBoardStore();
 const newColumn = ref("");
 
@@ -88,7 +95,7 @@ async function addColumn() {
   newColumn.value = "";
 }
 
-function onColumnChange(evt) {
+function onColumnChange(evt: DraggableChange) {
   if (evt.moved) store.onColumnMoved(evt.moved.newIndex);
 }
 </script>

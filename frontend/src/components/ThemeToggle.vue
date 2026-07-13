@@ -8,7 +8,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useColorMode } from "@vueuse/core";
 
@@ -18,7 +18,7 @@ const colorMode = useColorMode();
 
 const isDark = computed({
   get: () => colorMode.value === "dark",
-  set: (v) => {
+  set: (v: boolean) => {
     colorMode.value = v ? "dark" : "light";
   },
 });

@@ -1,4 +1,3 @@
-import { fileURLToPath, URL } from "node:url";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import vue from "@vitejs/plugin-vue";
 import ui from "@nuxt/ui/vite";
@@ -23,7 +22,8 @@ export default defineConfig({
   ]),
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // import.meta.url + URL — без node:url, чтобы не тянуть типы Node.
+      "@": new URL("./src", import.meta.url).pathname,
     },
   },
   server: {
