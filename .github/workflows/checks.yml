@@ -1,0 +1,43 @@
+name: Checks
+
+# Запускается самостоятельно на pull request'ах и вызывается как reusable
+# из Deploy (workflow_call) — деплой не пойдёт, если проверки упали.
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend (build + type-check)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      # Сборка заодно генерирует auto-imports.d.ts / components.d.ts
+      # (глобальные типы компонентов Nuxt UI), нужные для проверки шаблонов.
+      - name: Build
+        run: npm run build
+
+      # Строгая проверка типов, включая шаблоны .vue. vue-tsc ставим
+      # транзитивно (--no-save), чтобы не менять package-lock деплой-сборки.
+      - name: Type-check (vue-tsc)
+        run: |
+          npm i --no-save --legacy-peer-deps vue-tsc@2.1.10 typescript@5.6.3
+          npx vue-tsc --noEmit -p tsconfig.json

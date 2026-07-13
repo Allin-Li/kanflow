@@ -11,8 +11,13 @@ env:
   OWNER: allin-li # владелец пакетов в GHCR, обязательно в нижнем регистре
 
 jobs:
+  # ── Проверки (сборка фронта + типы). Гейт для всего остального ─
+  checks:
+    uses: ./.github/workflows/checks.yml
+
   # ── Сборка backend-образа и пуш в GHCR ──────────────────
   build-backend:
+    needs: checks
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,7 +50,7 @@ jobs:
 
   # ── Деплой: статика фронта + перезапуск backend по SSH ──
   deploy:
-    needs: build-backend
+    needs: [checks, build-backend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
