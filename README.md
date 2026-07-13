@@ -99,3 +99,7 @@ channel layer на Redis.
 - Роли участников (модель `BoardMembership.role` уже заложена).
 - Presence/курсоры соавторов через тот же WebSocket.
 - Загрузка файлов, комментарии, метки как отдельные сущности.
+
+## Лицензия
+
+[MIT](LICENSE) © 2026 Allin-Li
