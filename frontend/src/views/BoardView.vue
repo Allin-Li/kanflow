@@ -11,7 +11,22 @@
           icon="i-lucide-arrow-left"
           aria-label="К списку досок"
         />
-        <strong v-if="store.board" class="text-highlighted">
+        <UInput
+          v-if="store.board && renaming"
+          v-model="draftTitle"
+          size="sm"
+          class="font-semibold"
+          autofocus
+          @blur="saveTitle"
+          @keyup.enter="saveTitle"
+          @keyup.esc="renaming = false"
+        />
+        <strong
+          v-else-if="store.board"
+          class="text-highlighted cursor-pointer"
+          title="Двойной клик — переименовать доску"
+          @dblclick="startRename"
+        >
           {{ store.board.title }}
         </strong>
       </div>
@@ -80,6 +95,23 @@ interface DraggableChange {
 const props = defineProps<{ id: string | number }>();
 const store = useBoardStore();
 const newColumn = ref("");
+
+// Инлайн-переименование доски в шапке (двойной клик по заголовку).
+const renaming = ref(false);
+const draftTitle = ref("");
+
+function startRename() {
+  draftTitle.value = store.board?.title ?? "";
+  renaming.value = true;
+}
+
+async function saveTitle() {
+  renaming.value = false;
+  const title = draftTitle.value.trim();
+  if (title && title !== store.board?.title) {
+    await store.renameBoard(title);
+  }
+}
 
 watch(
   () => props.id,

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import http, { CLIENT_ID } from "@/api/http";
 import { BoardSocket } from "@/api/ws";
-import type { Board, Card, Column, WsMessage } from "@/types";
+import type { Board, BoardSummary, Card, Column, WsMessage } from "@/types";
 
 const byPosition = (a: { position: number; id: number }, b: { position: number; id: number }) =>
   a.position - b.position || a.id - b.id;
@@ -52,6 +52,14 @@ export const useBoardStore = defineStore("board", {
       this.socket?.close();
       this.socket = null;
       this.live = false;
+    },
+
+    // ── доска ────────────────────────────────────────────
+    async renameBoard(title: string): Promise<void> {
+      const board = this.board;
+      if (!board) return;
+      const { data } = await http.patch<BoardSummary>(`/boards/${board.id}/`, { title });
+      board.title = data.title;
     },
 
     // ── локальные помощники ──────────────────────────────
